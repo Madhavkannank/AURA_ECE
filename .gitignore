@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Local env files
+.env
+
+# Frontend/build cache
+.vite/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+
+# Local large/runtime artifacts
+mongodb.zip
+mongodb/

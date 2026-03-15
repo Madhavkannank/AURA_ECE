@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: aura-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: aura-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+      - MONGO_DB=aura_ece
+    depends_on:
+      - mongo
+    ports:
+      - "8000:8000"
+
+  frontend:
+    image: python:3.12-slim
+    container_name: aura-frontend
+    restart: unless-stopped
+    working_dir: /app
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+    command: sh -c "pip install --no-cache-dir -r requirements.txt && streamlit run streamlit_app.py --server.address 0.0.0.0 --server.port 8501"
+    environment:
+      - AURA_API_BASE=http://backend:8000
+    depends_on:
+      - backend
+    ports:
+      - "8501:8501"
+
+volumes:
+  mongo_data:
