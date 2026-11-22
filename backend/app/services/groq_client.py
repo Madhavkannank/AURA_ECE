@@ -10,7 +10,12 @@ from ..config import get_settings
 class GroqService:
     def __init__(self) -> None:
         self.settings = get_settings()
-        self.client = Groq(api_key=self.settings.groq_api_key) if self.settings.groq_api_key else None
+        self.client = None
+        if self.settings.groq_api_key:
+            try:
+                self.client = Groq(api_key=self.settings.groq_api_key)
+            except Exception:
+                self.client = None
 
     @property
     def enabled(self) -> bool:

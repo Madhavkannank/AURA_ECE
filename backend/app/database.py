@@ -8,11 +8,17 @@ from .config import get_settings
 class MongoManager:
     def __init__(self) -> None:
         settings = get_settings()
-        self.client = MongoClient(settings.mongo_uri)
+        self.client = MongoClient(settings.mongo_uri, serverSelectionTimeoutMS=2000)
         self.db = self.client[settings.mongo_db]
         self._ensure_indexes()
 
     def _ensure_indexes(self) -> None:
+        try:
+            self.client.admin.command("ping")
+        except PyMongoError:
+            # Keep startup resilient when Mongo is temporarily unavailable.
+            return
+
         try:
             self.students.create_index([("class_id", 1), ("created_at", -1)])
             self.students.create_index([("parent_id", 1), ("created_at", -1)])

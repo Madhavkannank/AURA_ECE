@@ -54,9 +54,32 @@ README.md
 
 ## Setup
 
-1. Create Python environment and install backend dependencies:
+### Quick Start with Docker (Recommended)
 
-```powershell
+Start MongoDB, FastAPI backend, and Streamlit frontend in one command:
+
+```bash
+docker compose up -d
+# or with podman:
+podman compose up -d
+```
+
+Frontend: `http://localhost:8501`  
+API Docs: `http://localhost:8000/docs`
+
+---
+
+### Local Development Setup
+
+1. Create Python environment and install dependencies:
+
+```bash
+# Linux / macOS
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# Windows (PowerShell)
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
@@ -64,57 +87,58 @@ pip install -r requirements.txt
 
 2. Configure environment:
 
-```powershell
+```bash
+# Linux / macOS
+cp .env.example .env
+
+# Windows (PowerShell)
 Copy-Item .env.example .env
 ```
 
 Minimum required keys:
 
-- `MONGO_URI`
-- `MONGO_DB`
-- `GROQ_API_KEY`
+- `MONGO_URI` (default: `mongodb://localhost:27017`)
+- `MONGO_DB` (default: `aura_ece`)
+- `GROQ_API_KEY` (optional: heuristic/rule fallback enabled if omitted)
 - `AUTH_SECRET_KEY`
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_WEB_API_KEY`
 - `FIREBASE_AUTH_DOMAIN`
 - `FIREBASE_APP_ID`
 
-Optional scheduler keys:
-
-- `REPORT_SCHEDULER_ENABLED` (`true` or `false`)
-- `REPORT_SCHEDULER_PERIOD` (`weekly` or `monthly`)
-- `REPORT_SCHEDULER_INTERVAL_MINUTES` (default `60`)
-
-Security/auth hardening keys:
-
-- `CORS_ALLOWED_ORIGINS` (comma-separated list, example: `http://localhost:8501`)
-- `AUTH_ISSUER` (JWT issuer claim)
-- `AUTH_AUDIENCE` (JWT audience claim)
-- `ALLOW_BOOTSTRAP_AUTH` (`false` for non-dev environments)
-
 3. Start backend API:
 
-```powershell
+```bash
 uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 4. Start frontend UI (Streamlit):
 
-```powershell
-streamlit run streamlit_app.py
+```bash
+streamlit run streamlit_app.py --server.port 8501
 ```
 
-5. Open app:
+5. Access Application:
 
 - Frontend: `http://localhost:8501`
-- API docs: `http://localhost:8000/docs`
+- Backend API Docs: `http://localhost:8000/docs`
 
-## Tests
+---
 
-Run integration tests (requires backend + MongoDB reachable):
+## 🧪 Tests
 
-```powershell
-.\.venv\Scripts\python -m pytest -q
+### Unit Tests (Zero external dependencies)
+
+Run the fast unit test suite:
+
+```bash
+pytest tests/unit/ -v
+```
+
+### Integration Pipeline Tests (Requires running backend + MongoDB)
+
+```bash
+pytest tests/integration/ -v
 ```
 
 If backend dependencies are unavailable, integration tests are skipped instead of failing.

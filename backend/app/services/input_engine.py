@@ -13,7 +13,10 @@ class InputEngine:
     def transcribe_audio(self, audio_b64: str, mime_type: str = "audio/wav") -> str:
         if not audio_b64:
             return ""
-        raw = base64.b64decode(audio_b64)
+        try:
+            raw = base64.b64decode(audio_b64)
+        except Exception:
+            return "Transcription unavailable: malformed base64 audio payload."
         if not self.groq.enabled:
             return "Transcription unavailable: missing GROQ_API_KEY."
 

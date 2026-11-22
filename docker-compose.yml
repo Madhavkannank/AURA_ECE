@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   mongo:
-    image: mongo:7
+    image: docker.io/library/mongo:7
     container_name: aura-mongo
     restart: unless-stopped
     ports:
@@ -27,15 +27,13 @@ services:
       - "8000:8000"
 
   frontend:
-    image: python:3.12-slim
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
     container_name: aura-frontend
     restart: unless-stopped
-    working_dir: /app
     env_file:
       - .env
-    volumes:
-      - ./:/app
-    command: sh -c "pip install --no-cache-dir -r requirements.txt && streamlit run streamlit_app.py --server.address 0.0.0.0 --server.port 8501"
     environment:
       - AURA_API_BASE=http://backend:8000
     depends_on:

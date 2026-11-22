@@ -23,3 +23,8 @@ Thumbs.db
 # Local large/runtime artifacts
 mongodb.zip
 mongodb/
+data/notes/
+backend/data/notes/
+*.log
+*.tmp
+

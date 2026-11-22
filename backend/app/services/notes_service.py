@@ -48,7 +48,12 @@ class NotesService:
         self.groq = get_groq_service()
         self.storage_dir = Path(self.settings.notes_storage_path).resolve()
         self.storage_dir.mkdir(parents=True, exist_ok=True)
-        self._rapid_ocr = RapidOCR() if RapidOCR else None
+        self._rapid_ocr = None
+        if RapidOCR:
+            try:
+                self._rapid_ocr = RapidOCR()
+            except Exception:
+                self._rapid_ocr = None
 
     def _safe_name(self, name: str) -> str:
         base = os.path.basename(name or "note")

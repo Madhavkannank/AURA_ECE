@@ -3,11 +3,16 @@ from typing import Any
 
 from bson import ObjectId
 
+from bson.errors import InvalidId
+
 from ..database import mongo
 
 
-def to_object_id(value: str) -> ObjectId:
-    return ObjectId(value)
+def to_object_id(value: str) -> ObjectId | None:
+    try:
+        return ObjectId(value)
+    except (InvalidId, TypeError, ValueError):
+        return None
 
 
 def serialize_mongo_doc(doc: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -48,7 +53,10 @@ def get_students_by_parent(parent_id: str) -> list[dict[str, Any]]:
 
 
 def get_student(student_id: str) -> dict[str, Any] | None:
-    return serialize_mongo_doc(mongo.students.find_one({"_id": to_object_id(student_id)}))
+    oid = to_object_id(student_id)
+    if not oid:
+        return None
+    return serialize_mongo_doc(mongo.students.find_one({"_id": oid}))
 
 
 def get_class_roster_names(class_id: str) -> list[str]:
@@ -76,8 +84,11 @@ def create_class_report(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def approve_report(report_id: str, teacher_id: str, approved: bool) -> dict[str, Any] | None:
+    oid = to_object_id(report_id)
+    if not oid:
+        return None
     mongo.reports.update_one(
-        {"_id": to_object_id(report_id)},
+        {"_id": oid},
         {
             "$set": {
                 "approved": approved,
@@ -86,7 +97,7 @@ def approve_report(report_id: str, teacher_id: str, approved: bool) -> dict[str,
             }
         },
     )
-    return serialize_mongo_doc(mongo.reports.find_one({"_id": to_object_id(report_id)}))
+    return serialize_mongo_doc(mongo.reports.find_one({"_id": oid}))
 
 
 def get_reports_for_parent(parent_id: str) -> list[dict[str, Any]]:
@@ -147,7 +158,10 @@ def create_note(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def get_note(note_id: str) -> dict[str, Any] | None:
-    return serialize_mongo_doc(mongo.notes.find_one({"_id": to_object_id(note_id)}))
+    oid = to_object_id(note_id)
+    if not oid:
+        return None
+    return serialize_mongo_doc(mongo.notes.find_one({"_id": oid}))
 
 
 def search_notes(
